@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PiPiWood | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+            background-image: radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent),
+                              radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.1), transparent);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .charts-main {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .charts-secondary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 1024px) {
+            .charts-main, .charts-secondary {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 1rem;
+            background: rgba(56, 189, 248, 0.2);
+            color: var(--accent);
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>PiPi-WOOD <span class="badge">Analytics</span></h1>
+            </div>
+            <div style="color: var(--text-secondary); font-size: 0.875rem;">
+                Последнее обновление: 2026-02-28
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Всего заказов</div>
+                <div class="stat-value" id="totalOrders">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Всего выручка (руб)</div>
+                <div class="stat-value" id="totalRevenue">0 ₽</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Уникальных клиентов</div>
+                <div class="stat-value" id="uniqueClients">0</div>
+            </div>
+        </div>
+
+        <div class="charts-main">
+            <div class="chart-card">
+                <div class="chart-title">Динамика заказов по месяцам</div>
+                <canvas id="trendChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Доля категорий</div>
+                <canvas id="catChart"></canvas>
+            </div>
+        </div>
+
+        <div class="charts-secondary">
+            <div class="chart-card">
+                <div class="chart-title">Выручка по годам</div>
+                <canvas id="revYearChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Топ-10 городов (заказы)</div>
+                <canvas id="cityChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const data = {
+          "metrics": {
+            "total_orders": 6146,
+            "total_revenue": 16876436,
+            "unique_clients": 2200
+          },
+          "charts": {
+            "trend": {
+              "labels": ["2022-01", "2022-02", "2022-03", "2022-04", "2022-05", "2022-06", "2022-07", "2022-08", "2022-09", "2022-10", "2022-11", "2022-12", "2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", "2023-07", "2023-08", "2023-09", "2023-10", "2023-11", "2023-12", "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10", "2026-11", "2026-12"],
+              "values": [7, 10, 3, 10, 14, 21, 18, 8, 17, 14, 21, 16, 54, 58, 80, 69, 69, 45, 66, 78, 73, 65, 54, 52, 50, 56, 59, 52, 44, 57, 58, 52, 55, 44, 51, 52, 58, 57, 48, 50, 60, 46, 56, 54, 58, 53, 73, 56, 11, 10, 10, 13, 15, 15, 6, 6, 21, 10, 13, 10]
+            },
+            "categories": {
+              "labels": ["Прочее", "Силикагель", "Древесный", "Тофу", "Бентонит"],
+              "values": [3398, 1211, 696, 566, 275]
+            },
+            "revenue_years": {
+              "labels": ["2022", "2023", "2024", "2025", "2026"],
+              "values": [465877, 1876273, 1637565, 2219088, 430828]
+            },
+            "cities": {
+              "labels": ["Москва", "Подольск", "Химки", "Люберцы", "Балашиха", "Красногорск", "Мытищи", "Домодедово", "Одинцово", "Зеленоград"],
+              "values": [5662, 114, 72, 69, 66, 46, 45, 33, 22, 10]
+            }
+          }
+        };
+
+        // Заполнение метрик
+        document.getElementById('totalOrders').innerText = data.metrics.total_orders.toLocaleString();
+        document.getElementById('totalRevenue').innerText = data.metrics.total_revenue.toLocaleString() + ' ₽';
+        document.getElementById('uniqueClients').innerText = data.metrics.unique_clients.toLocaleString();
+
+        // Конфигурация Chart.js
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        // 1. Тренд
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: {
+                labels: data.charts.trend.labels,
+                datasets: [{
+                    label: 'Заказы',
+                    data: data.charts.trend.values,
+                    borderColor: '#38bdf8',
+                    backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' } }
+                }
+            }
+        });
+
+        // 2. Категории
+        new Chart(document.getElementById('catChart'), {
+            type: 'doughnut',
+            data: {
+                labels: data.charts.categories.labels,
+                datasets: [{
+                    data: data.charts.categories.values,
+                    backgroundColor: ['#4ade80', '#38bdf8', '#fbbf24', '#f87171', '#818cf8'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 20 } }
+                }
+            }
+        });
+
+        // 3. Выручка Года
+        new Chart(document.getElementById('revYearChart'), {
+            type: 'bar',
+            data: {
+                labels: data.charts.revenue_years.labels,
+                datasets: [{
+                    label: 'Выручка',
+                    data: data.charts.revenue_years.values,
+                    backgroundColor: '#818cf8',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { 
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { callback: v => v >= 1000000 ? (v/1000000).toFixed(1) + 'M' : v.toLocaleString() }
+                    }
+                }
+            }
+        });
+
+        // 4. Города
+        new Chart(document.getElementById('cityChart'), {
+            type: 'bar',
+            data: {
+                labels: data.charts.cities.labels,
+                datasets: [{
+                    label: 'Заказы',
+                    data: data.charts.cities.values,
+                    backgroundColor: '#fb7185',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

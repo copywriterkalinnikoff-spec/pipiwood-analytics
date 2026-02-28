@@ -1,0 +1,15 @@
+# Предупреждение: Не выгружаем базу данных на GitHub для безопасности
+База/
+*.xlsx
+*.csv
+dashboard_data.json
+.venv/
+__pycache__/
+*.pyc
+find_csv.py
+get_headers.py
+fix_headers.py
+generate_web_data.py
+analyze_data.py
+copy_charts.py
+heavy_artillery_analysis.py
