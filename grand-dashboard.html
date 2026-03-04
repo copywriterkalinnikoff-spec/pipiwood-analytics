@@ -1,0 +1,268 @@
+
+    <!DOCTYPE html>
+    <html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <title>Гранд Дашборд PiPiWood</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+        <style>
+            body { font-family: 'Montserrat', sans-serif; background: #f4f7f6; margin: 0; padding: 0; color: #2c3e50; }
+            .header-main { background: #2c3e50; color: white; padding: 40px 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+            .header-main h1 { margin: 0; font-size: 36px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+            .header-main p { margin: 10px 0 0; font-size: 18px; color: #1abc9c; }
+            
+            .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+            
+            /* Блоки и разделители */
+            .section { margin-bottom: 60px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #eee; }
+            .section-header { padding: 20px 30px; background: #ecf0f1; border-bottom: 2px solid #bdc3c7; display: flex; align-items: center; gap: 15px; }
+            .section-header h2 { margin: 0; font-size: 24px; color: #2c3e50; font-weight: 800; }
+            .section-header .icon { font-size: 28px; }
+            .section-content { padding: 30px; }
+
+            /* Цвета секций */
+            .s-finance .section-header { background: #e8f8f5; border-bottom-color: #1abc9c; }
+            .s-finance .section-header h2 { color: #16a085; }
+            
+            .s-products .section-header { background: #fdf2e9; border-bottom-color: #e67e22; }
+            .s-products .section-header h2 { color: #d35400; }
+            
+            .s-cities .section-header { background: #ebf5fb; border-bottom-color: #3498db; }
+            .s-cities .section-header h2 { color: #2980b9; }
+            
+            .s-clients .section-header { background: #f5eef8; border-bottom-color: #9b59b6; }
+            .s-clients .section-header h2 { color: #8e44ad; }
+
+            /* KPI */
+            .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+            .kpi-card { background: #fff; padding: 25px; border-radius: 15px; border: 1px solid #eee; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.3s; }
+            .kpi-card:hover { transform: translateY(-5px); }
+            .kpi-card span { display: block; font-size: 14px; text-transform: uppercase; color: #7f8c8d; font-weight: 600; letter-spacing: 1px; }
+            .kpi-card b { display: block; font-size: 36px; margin-top: 10px; color: #2c3e50; }
+
+            /* Графики */
+            .chart-wrapper { position: relative; height: 350px; width: 100%; margin-bottom: 20px; }
+            .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+            @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
+
+            /* Таблица клиентов */
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { padding: 15px; text-align: left; border-bottom: 1px solid #ecf0f1; }
+            th { background: #f8f9f9; color: #7f8c8d; font-weight: 600; text-transform: uppercase; font-size: 14px; }
+            tr:hover { background: #fdfefe; }
+            td b { color: #27ae60; font-size: 16px; }
+            .rank { width: 40px; text-align: center; font-weight: 800; color: #bdc3c7; }
+            tr:nth-child(1) .rank { color: #f1c40f; font-size: 20px; } /* Золото */
+            tr:nth-child(2) .rank { color: #95a5a6; font-size: 18px; } /* Серебро */
+            tr:nth-child(3) .rank { color: #d35400; font-size: 16px; } /* Бронза */
+
+        </style>
+    </head>
+    <body>
+
+        <div class="header-main">
+            <h1>Гранд Сводка PiPiWood</h1>
+            <p>Бизнес разложен по полочкам: Финансы, Товары, Города, VIP-клиенты</p>
+        </div>
+
+        <div class="container">
+
+            <!-- БЛОК 1: ФИНАНСЫ -->
+            <div class="section s-finance">
+                <div class="section-header">
+                    <div class="icon">💰</div>
+                    <h2>Блок 1. Финансы и Сезонность</h2>
+                </div>
+                <div class="section-content">
+                    <div class="kpi-grid">
+                        <div class="kpi-card" style="border-bottom: 5px solid #1abc9c;">
+                            <span>Общая Выручка</span>
+                            <b>16 876 436 ₽</b>
+                        </div>
+                        <div class="kpi-card" style="border-bottom: 5px solid #f1c40f;">
+                            <span>Средний Чек</span>
+                            <b>2 745 ₽</b>
+                        </div>
+                        <div class="kpi-card" style="border-bottom: 5px solid #3498db;">
+                            <span>Всего Заказов</span>
+                            <b>6 146</b>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div>
+                            <h3 style="text-align:center; color:#7f8c8d;">Выручка по годам</h3>
+                            <div class="chart-wrapper"><canvas id="yChart"></canvas></div>
+                        </div>
+                        <div>
+                            <h3 style="text-align:center; color:#7f8c8d;">Сезонность по месяцам (Выручка ₽)</h3>
+                            <div class="chart-wrapper"><canvas id="sChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- БЛОК 2: ТОВАРЫ -->
+            <div class="section s-products">
+                <div class="section-header">
+                    <div class="icon">📦</div>
+                    <h2>Блок 2. Виды наполнителей (Продукты)</h2>
+                </div>
+                <div class="section-content">
+                    <p style="text-align:center; color:#7f8c8d; margin-bottom: 30px;">Что приносит больше всего денег и продается чаще всего?</p>
+                    <div class="grid-2">
+                        <div class="chart-wrapper"><canvas id="pRevChart"></canvas></div>
+                        <div class="chart-wrapper"><canvas id="pCountChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- БЛОК 3: ГОРОДА -->
+            <div class="section s-cities">
+                <div class="section-header">
+                    <div class="icon">🌍</div>
+                    <h2>Блок 3. География продаж (ТОП-10 Городов)</h2>
+                </div>
+                <div class="section-content">
+                    <p style="text-align:center; color:#7f8c8d; margin-bottom: 30px;">Распределение выручки по ключевым населенным пунктам</p>
+                    <div class="chart-wrapper" style="height: 400px;"><canvas id="cityChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- БЛОК 4: ТОП КЛИЕНТЫ -->
+            <div class="section s-clients">
+                <div class="section-header">
+                    <div class="icon">👑</div>
+                    <h2>Блок 4. ТОП-15 Клиентов (Золотой Актив)</h2>
+                </div>
+                <div class="section-content">
+                    <p style="text-align:center; color:#7f8c8d; margin-bottom: 20px;">Самые лояльные клиенты, которые принесли максимум выручки за всё время</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="rank">#</th>
+                                <th>Имя / Статус</th>
+                                <th>Телефон</th>
+                                <th>Город</th>
+                                <th>Кол-во покупок</th>
+                                <th>Сумма покупок (LTV)</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr><td>1</td><td>Ленинский (Восст.)</td><td>791***8751</td><td>Москва</td><td>71</td><td><b>270 403 ₽</b></td></tr><tr><td>2</td><td>Добрый (Восст.)</td><td>792***6847</td><td>Москва</td><td>71</td><td><b>171 050 ₽</b></td></tr><tr><td>3</td><td>Парковая (Восст.)</td><td>798***6767</td><td>Москва</td><td>67</td><td><b>231 350 ₽</b></td></tr><tr><td>4</td><td>Хотела (Восст.)</td><td>791***1054</td><td>Москва</td><td>60</td><td><b>210 000 ₽</b></td></tr><tr><td>5</td><td>Ирина (Восст.)</td><td>792***2320</td><td>Москва</td><td>51</td><td><b>130 400 ₽</b></td></tr><tr><td>6</td><td>Ваше (Восст.)</td><td>791***9806</td><td>Москва</td><td>46</td><td><b>98 400 ₽</b></td></tr><tr><td>7</td><td>Добрый (Восст.)</td><td>790***4196</td><td>Москва</td><td>44</td><td><b>84 100 ₽</b></td></tr><tr><td>8</td><td>Ларюшино (Восст.)</td><td>792***1777</td><td>Москва</td><td>38</td><td><b>280 560 ₽</b></td></tr><tr><td>9</td><td>Добрый (Восст.)</td><td>792***8548</td><td>Москва</td><td>37</td><td><b>70 450 ₽</b></td></tr><tr><td>10</td><td>Ясенево (Восст.)</td><td>790***4068</td><td>Москва</td><td>35</td><td><b>61 550 ₽</b></td></tr><tr><td>11</td><td>Академика (Восст.)</td><td>798***6172</td><td>Москва</td><td>34</td><td><b>70 200 ₽</b></td></tr><tr><td>12</td><td>Александра (Восст.)</td><td>790***4617</td><td>Москва</td><td>33</td><td><b>54 000 ₽</b></td></tr><tr><td>13</td><td>Добрый (Восст.)</td><td>729***3528</td><td>Москва</td><td>28</td><td><b>64 350 ₽</b></td></tr><tr><td>14</td><td>Клиент</td><td>792***4214</td><td>Москва</td><td>26</td><td><b>91 000 ₽</b></td></tr><tr><td>15</td><td>Воробьева (Восст.)</td><td>796***5333</td><td>Москва</td><td>25</td><td><b>0 ₽</b></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <script>
+            // Настройки шрифтов для Chart.js
+            Chart.defaults.font.family = "'Montserrat', sans-serif";
+            Chart.defaults.color = '#7f8c8d';
+
+            // --- БЛОК 1: ФИНАНСЫ ---
+            const yCtx = document.getElementById('yChart').getContext('2d');
+            new Chart(yCtx, {
+                type: 'bar',
+                data: {
+                    labels: ["2022", "2023", "2024", "2025", "2026"],
+                    datasets: [{
+                        label: 'Выручка (₽)',
+                        data: [1257505, 4753330, 4181147, 5667189, 1084890],
+                        backgroundColor: '#1abc9c',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            const sCtx = document.getElementById('sChart').getContext('2d');
+            const sData = {"2022": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 518996, 738509], "2023": [522303, 472202, 428195, 391487, 374101, 356402, 330497, 415412, 320948, 446719, 341262, 353802], "2024": [338742, 271682, 304503, 317447, 326810, 294485, 332777, 432954, 387770, 381700, 381122, 411155], "2025": [327847, 348950, 346103, 403054, 392709, 311656, 408434, 733909, 704945, 636600, 465878, 587104], "2026": [567931, 516959, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]};
+            const ds = [];
+            const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6'];
+            let idx = 0;
+            for (const yr in sData) {
+                ds.push({
+                    label: yr + ' год',
+                    data: sData[yr],
+                    borderColor: colors[idx % colors.length],
+                    backgroundColor: colors[idx % colors.length],
+                    tension: 0.4, borderWidth: 3, fill: false
+                });
+                idx++;
+            }
+            new Chart(sCtx, {
+                type: 'line',
+                data: { 
+                    labels: ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'], 
+                    datasets: ds 
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false }
+                }
+            });
+
+            // --- БЛОК 2: ТОВАРЫ ---
+            const pRevCtx = document.getElementById('pRevChart').getContext('2d');
+            new Chart(pRevCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ["\u0414\u0440\u0443\u0433\u043e\u0435", "\u0421\u0438\u043b\u0438\u043a\u0430\u0433\u0435\u043b\u044c", "\u0422\u043e\u0444\u0443", "\u0414\u0440\u0435\u0432\u0435\u0441\u043d\u044b\u0439/\u041f\u0435\u043b\u043b\u0435\u0442\u044b", "\u0411\u0435\u043d\u0442\u043e\u043d\u0438\u0442", "\u0421\u0435\u043d\u043e/\u041e\u043f\u0438\u043b\u043a\u0438"],
+                    datasets: [{
+                        data: [7419360, 4518927, 2002739, 1833748, 904626, 264661],
+                        backgroundColor: ['#e67e22', '#3498db', '#95a5a6', '#2ecc71', '#f1c40f', '#9b59b6'],
+                        borderWidth: 2, hoverOffset: 10
+                    }]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { title: { display: true, text: 'Доля по ВЫРУЧКЕ (₽)', font: {size: 16} } }
+                }
+            });
+
+            const pCountCtx = document.getElementById('pCountChart').getContext('2d');
+            new Chart(pCountCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ["\u0414\u0440\u0443\u0433\u043e\u0435", "\u0421\u0438\u043b\u0438\u043a\u0430\u0433\u0435\u043b\u044c", "\u0422\u043e\u0444\u0443", "\u0414\u0440\u0435\u0432\u0435\u0441\u043d\u044b\u0439/\u041f\u0435\u043b\u043b\u0435\u0442\u044b", "\u0411\u0435\u043d\u0442\u043e\u043d\u0438\u0442", "\u0421\u0435\u043d\u043e/\u041e\u043f\u0438\u043b\u043a\u0438"],
+                    datasets: [{
+                        data: [3174, 1193, 585, 687, 358, 149],
+                        backgroundColor: ['#e67e22', '#3498db', '#95a5a6', '#2ecc71', '#f1c40f', '#9b59b6'],
+                        borderWidth: 2, hoverOffset: 10
+                    }]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { title: { display: true, text: 'Доля по КОЛИЧЕСТВУ ЗАКАЗОВ (шт)', font: {size: 16} } }
+                }
+            });
+
+            // --- БЛОК 3: ГОРОДА ---
+            const cityCtx = document.getElementById('cityChart').getContext('2d');
+            new Chart(cityCtx, {
+                type: 'bar',
+                data: {
+                    labels: ["\u041c\u043e\u0441\u043a\u0432\u0430", "\u041f\u043e\u0434\u043e\u043b\u044c\u0441\u043a", "\u0425\u0438\u043c\u043a\u0438", "\u0411\u0430\u043b\u0430\u0448\u0438\u0445\u0430", "\u041b\u044e\u0431\u0435\u0440\u0446\u044b", "\u0414\u043e\u043c\u043e\u0434\u0435\u0434\u043e\u0432\u043e", "\u041a\u0440\u0430\u0441\u043d\u043e\u0433\u043e\u0440\u0441\u043a", "\u041c\u044b\u0442\u0438\u0449\u0438", "\u0417\u0435\u043b\u0435\u043d\u043e\u0433\u0440\u0430\u0434", "\u041e\u0434\u0438\u043d\u0446\u043e\u0432\u043e"],
+                    datasets: [{
+                        label: 'Выручка (₽)',
+                        data: [15463791, 346520, 252490, 175550, 135690, 132530, 120000, 96240, 85850, 74500],
+                        backgroundColor: '#3498db',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Горизонтальный график
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+        </script>
+    </body>
+    </html>
+    
